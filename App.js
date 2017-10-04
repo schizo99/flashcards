@@ -6,8 +6,12 @@ import { TabNavigator, StackNavigator } from 'react-navigation'
 import { Constants } from 'expo'
 import Decks from './components/Decks'
 import NewDeck from './components/NewDeck'
-import {MaterialCommunityIcons, Entypo} from '@expo/vector-icons'
+import DeckDetail from './components/DeckDetail'
+import AddCard from './components/AddCard'
+import Quiz from './components/Quiz'
+import { MaterialCommunityIcons, Entypo } from '@expo/vector-icons'
 import reducer from './reducers'
+import { setLocalNotification } from './utils/helpers'
 
 function MainStatusBar ({...props}) {
   return (
@@ -57,18 +61,39 @@ const MainNavigator = StackNavigator({
   Home: {
     screen: Tabs,
   },
-  /* EntryDetail: {
-    screen: EntryDetail,
+   DeckDetail: {
+    screen: DeckDetail,
     navigationOptions: {
-      headerTintColor: white,
+      headerTintColor: 'white',
       headerStyle: {
-        backgroundColor: purple,
+        backgroundColor: 'black',
       }
     }
-  } */
+  },
+  AddCard: {
+    screen: AddCard,
+    navigationOptions: {
+      headerTintColor: 'white',
+      headerStyle: {
+        backgroundColor: 'black',
+      }
+    }
+  },
+  Quiz: {
+    screen: Quiz,
+    navigationOptions: {
+      headerTintColor: 'white',
+      headerStyle: {
+        backgroundColor: 'black',
+      }
+    }
+  },
 })
 
 export default class App extends React.Component {
+  componentDidMount() {
+    setLocalNotification()
+  }
   render() {
     return (
       <Provider store={createStore(reducer)}>

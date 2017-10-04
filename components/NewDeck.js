@@ -1,11 +1,33 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Text, TextInput } from 'react-native'
+import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
+import { NavigationActions } from 'react-navigation'
+import { addDeck } from '../actions'
+import { saveDeck } from '../utils/api'
+import { connect } from 'react-redux'
 
-export default class NewDeck extends Component  {
+class NewDeck extends Component  {
   state = {
-    title: ''
+    title: '',
+    questions: []
   }
+  submit = () => {
+    const { title } = this.state
+    const deck = this.state
+    this.props.addDeck(deck)
+    saveDeck(deck)
 
+    const resetAction = NavigationActions.reset({
+      index: 1,
+      actions: [
+        NavigationActions.navigate({ routeName: 'Home'}),
+        NavigationActions.navigate({ routeName: 'DeckDetail', params: {deckId: title}})
+      ]
+    })
+    this.props.navigation.dispatch(resetAction)
+    
+    
+
+  }
   render () {
     return (
       <View style={styles.container}>
@@ -14,10 +36,15 @@ export default class NewDeck extends Component  {
             What is the title of your new deck?
           </Text>
           <TextInput
-          style={styles.titleInput}
-          onChangeText={(title) => this.setState({title})}
-          value={this.state.title}
-        />
+            style={styles.titleInput}
+            onChangeText={(title) => this.setState({title})}
+            value={this.state.title}
+          />
+          <TouchableOpacity style={styles.submitButton} onPress={this.submit}>
+            <Text style={{color: 'white', fontSize: 20}}>
+              Submit
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     )
@@ -31,13 +58,35 @@ const styles = StyleSheet.create({
   deck: {
     flex: 1,
     justifyContent: 'center',
-    //alignItems: 'center'
   },
   titleInput : {
-    borderColor: 'blue',
-    borderWidth: 1,
+    borderColor: 'grey',
+    borderWidth: 2,
     borderRadius: 5,
     height: 40,
     margin: 20,
+  },
+  submitButton : {
+    backgroundColor: 'black',
+    borderWidth: 1,
+    padding: 10,
+    alignSelf: 'center',
+    borderRadius: 5,
+    margin: 20,
   }
 })
+
+function mapDispatchToProps (dispatch, { navigation }) {
+
+  return {
+    addDeck: (deck) => dispatch(addDeck({
+      [deck.title]: deck
+    })),
+    goBack: () => navigation.goBack(),
+  }
+}
+
+export default connect(
+  undefined,
+  mapDispatchToProps,
+)(NewDeck)

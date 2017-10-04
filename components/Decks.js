@@ -1,18 +1,41 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { View, StyleSheet, Text, TouchableOpacity } from 'react-native'
-import getDecks from '../utils/api'
+import { View, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native'
+import { getDecks } from '../utils/api'
+import { receiveDecks } from '../actions'
 import { AppLoading } from 'expo'
 
 class Decks extends Component {
 
   state = {
     ready: true,
+    animatedValue: new Animated.Value(0),
   }
-  
+  componentDidMount () {
+    const { dispatch } = this.props
+
+    getDecks()
+      .then((decks) => dispatch(receiveDecks(decks)))
+      .then(() => this.setState(() => ({ready: true})))
+  }
+
+  navigate = (title) => {
+    this.props.navigation.navigate('DeckDetail', { deckId: title })
+    this.setState({ animatedValue: new Animated.Value(0)})
+  }
+  goDeck = (title) => {
+    const { animatedValue } = this.state
+    Animated.timing(animatedValue,{
+        toValue: 360,
+      }).start(() => this.navigate(title))
+  }
   render() {
-    const { ready } = this.state
+    const { ready, animatedValue } = this.state
     const { decks } = this.props
+    let frontInterpolate = animatedValue.interpolate({
+      inputRange: [0, 360],
+      outputRange: ['0deg', '360deg'],
+    })
     if (ready === false) {
       return <AppLoading />
     }
@@ -24,7 +47,7 @@ class Decks extends Component {
               You haven't created any deck.
             </Text>
             <TouchableOpacity style={ styles.createDeckButton } onPress={() => this.props.navigation.navigate('NewDeck')}>
-              <Text>
+              <Text style={{color: 'white'}}>
                 Create deck
               </Text>
             </TouchableOpacity>
@@ -32,9 +55,23 @@ class Decks extends Component {
         </View>
       )
     }
-    console.log("Decks:", decks)
     return (
-      <View>
+      <View style={styles.container}>
+          {Object.keys(decks).map(title => {
+            const { questions, ...rest } = decks[title]
+            
+          return (
+            <View key={title} style={styles.deck}>
+              <TouchableOpacity activeOpacity={1} onPress={() => this.goDeck(title)}>
+                <Animated.View style={[{backfaceVisibility: 'hidden'}, {transform: [{ rotateY: frontInterpolate}]}]}>
+                  <Text style={{fontSize: 30, textAlign: 'center'}}>{title}</Text>
+                  <Text style={{fontSize: 15, color: 'gray', textAlign: 'center'}}>
+                    { typeof questions === 'undefined' ? 0 : questions.length } cards
+                  </Text>
+                </Animated.View>
+              </TouchableOpacity>
+            </View>
+          )})}
       </View>
     )
   }
@@ -49,13 +86,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  deck: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+  },
   noDecks: {
     fontSize: 20,
     paddingTop: 20,
     paddingBottom: 20
   },
   createDeckButton: {
-    borderColor: 'blue',
+    backgroundColor: 'black',
     borderWidth: 1,
     padding: 10,
     alignSelf: 'center',
