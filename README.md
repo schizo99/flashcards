@@ -1,3 +1,18 @@
+# Mobile Flashcards
+
+## Test
+
+The application was tested on iPhone 5SE and Iphone 6 Plus simulator.
+
+## Run
+
+* Make sure `yarn` is installed
+* `git clone https://github.com/schizo99/flashcards.git` 
+* `cd flashcards/`
+* `yarn install`
+* `yarn start`
+* Follow instructions to open iOS simulator on PC or phone.
+
 This project was bootstrapped with [Create React Native App](https://github.com/react-community/create-react-native-app).
 
 Below you'll find information about performing common tasks. The most recent version of this guide is available [here](https://github.com/react-community/create-react-native-app/blob/master/react-native-scripts/template/README.md).
